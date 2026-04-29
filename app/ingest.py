@@ -11,6 +11,7 @@ def read_txt(file_path: Path) -> list[dict]:
             "page": 1,
             "text": text.strip(),
             "char_count": len(text.strip()),
+            "file_type": "txt",
         }
     ]
 
@@ -29,6 +30,7 @@ def read_pdf(file_path: Path) -> list[dict]:
                 "page": i,
                 "text": text,
                 "char_count": len(text),
+                "file_type": "pdf",
             }
         )
 
@@ -57,6 +59,7 @@ def read_docx(file_path: Path) -> list[dict]:
             "page": 1,
             "text": text,
             "char_count": len(text),
+            "file_type": "docx",
         }
     ]
 
@@ -93,7 +96,7 @@ if __name__ == "__main__":
             print(f"Page: {doc['page']}")
             print(f"Characters: {doc['char_count']}")
             print("Preview:")
-            print(doc["text"][:1000] if doc["text"] else "[EMPTY PAGE]")
+            print(doc["text"][:500] if doc["text"] else "[EMPTY PAGE]")
             print()
 
     except Exception as e:
