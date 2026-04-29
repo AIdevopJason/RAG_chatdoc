@@ -1,5 +1,6 @@
 from pathlib import Path
 from pypdf import PdfReader
+from docx import Document
 
 
 def read_txt(file_path: Path) -> list[dict]:
@@ -34,6 +35,32 @@ def read_pdf(file_path: Path) -> list[dict]:
     return pages
 
 
+def read_docx(file_path: Path) -> list[dict]:
+    document = Document(str(file_path))
+    text_parts = []
+
+    for paragraph in document.paragraphs:
+        text = paragraph.text.strip()
+        if text:
+            text_parts.append(text)
+
+    for table in document.tables:
+        for row in table.rows:
+            cells = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+            if cells:
+                text_parts.append(" | ".join(cells))
+
+    text = "\n\n".join(text_parts).strip()
+    return [
+        {
+            "source": file_path.name,
+            "page": 1,
+            "text": text,
+            "char_count": len(text),
+        }
+    ]
+
+
 def load_document(file_path: str) -> list[dict]:
     path = Path(file_path)
 
@@ -46,12 +73,14 @@ def load_document(file_path: str) -> list[dict]:
         return read_txt(path)
     elif suffix == ".pdf":
         return read_pdf(path)
+    elif suffix == ".docx":
+        return read_docx(path)
     else:
         raise ValueError(f"Unsupported file type: {suffix}")
 
 
 if __name__ == "__main__":
-    sample_file = "../data/raw/sample.pdf"  # 改成你的文件名
+    sample_file = "../data/raw/AG网络迁移计划.docx"  # 改成你的文件名
 
     try:
         docs = load_document(sample_file)
@@ -64,7 +93,7 @@ if __name__ == "__main__":
             print(f"Page: {doc['page']}")
             print(f"Characters: {doc['char_count']}")
             print("Preview:")
-            print(doc["text"][:500] if doc["text"] else "[EMPTY PAGE]")
+            print(doc["text"][:1000] if doc["text"] else "[EMPTY PAGE]")
             print()
 
     except Exception as e:
